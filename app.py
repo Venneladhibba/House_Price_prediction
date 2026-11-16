@@ -3,8 +3,8 @@ from flask import Flask,render_template,request
 import numpy as np
 import pandas as pd
 import pickle
-import gzip
 import sklearn
+import gzip
 from sklearn.ensemble import RandomForestRegressor
 
 with gzip.open("HPP_Model.pkl",'rb') as f:
@@ -13,6 +13,8 @@ with gzip.open("HPP_Model.pkl",'rb') as f:
 df=pd.read_csv("data.csv")
 city_list=list(pd.factorize(df.iloc[:,-3])[1])
 statezip_list=list(pd.factorize(df.iloc[:,-2])[1])
+country_list = list(pd.factorize(df.iloc[:, -1])[1])
+
 app=Flask(__name__)
 @app.route("/")
 def fun():
@@ -32,8 +34,10 @@ def prediction():
                  values.append(float(statezip_list.index(val)))
              else:
                  values.append(float(val))
+        elif i == len(raw_values) - 1:
+            values.append(float(country_list.index(val)))
         else:
-            values.append(0.0)
+            values.append(val)
 
     sol=model.predict([values])[0]
     return render_template("index.html",prediction_text=sol)
